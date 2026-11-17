@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>FINE ATLAS ♓ 江坂20km圏内 お魚カスタム定期便 営業図鑑｜Pisces Field Edition</title>
-  <meta name="description" content="株式会社ファインアトラス（ファインスタッフ×対馬水産）江坂20km圏内・月額1万円お魚カスタム定期便（煮穴子・穴子フィレ・甘鯛・のどぐろ・剣先イカ）のSNS・口コミ精査済み営業ターゲット図鑑＆戦略コンパス。" />
+  <title>FINE ATLAS ♓ 江坂20km営業図鑑（厳選60店舗）＆ 全国冷凍魚仕入AI調査・配送モデル試算</title>
+  <meta name="description" content="株式会社ファインアトラス（ファインスタッフ×対馬水産）江坂20km圏内・厳選60店舗営業ターゲット図鑑 ＆ 全国業務用冷凍魚10品目の仕入れ相場AI調査・江坂配送3モデル損益シミュレーター。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -17,16 +17,19 @@
       <div>
         <div class="brand-eyebrow">
           <span class="pisces-glyph" aria-hidden="true">♓</span>
-          <span>FINE ATLAS Co., Ltd. — PISCES FIELD EDITION v1.0</span>
+          <span>FINE ATLAS Co., Ltd. — PISCES FIELD &amp; PROCUREMENT EDITION v2.0</span>
         </div>
-        <h1>江坂20km圏内「お魚カスタム定期便」営業図鑑</h1>
+        <h1>江坂20km圏内「お魚カスタム定期便」営業図鑑 ＆ 仕入・配送戦略</h1>
         <p class="atlas-hero-lead">
           <strong>産地で時間を止め、現地で時間を動かす。</strong><br />
-          対馬の<strong>煮穴子・穴子フィレ・甘鯛・のどぐろ・剣先イカ</strong>を、お店ごとの加工度（フィレ・三枚おろし・完成品）で届ける<strong>月額1万円〜チルド定期便</strong>。SNS・口コミから「魚へのこだわり」と「調理人不足・少人数オペの急所」を精査した、魚好き営業マン・富田君のための攻略コンパスです。
+          対馬の<strong>煮穴子・穴子フィレ・甘鯛・のどぐろ・剣先イカ</strong>（＋拡張冷凍5品目）を店ごとの加工度で届ける<strong>月額1万円〜定期便</strong>。富田君のための<strong>実在精査済み厳選60店舗カルテ</strong>と、社長・尾崎さん向けの<strong>全国冷凍魚仕入相場AI調査＆江坂配送モデル損益試算</strong>を1画面に統合しました。
         </p>
         <div class="hero-actions">
           <a id="btn-download-excel" href="2_江坂20km圏内_営業リスト_ファインアトラス定期便.xlsx" download class="btn btn-primary">
-            📥 スプレッドシート版 (.xlsx) をダウンロード
+            📥 5シート統合Excel版 (.xlsx) をダウンロード
+          </a>
+          <a href="docs/全国冷凍魚_仕入価格AI調査_江坂配送モデル検討書.md" target="_blank" rel="noopener noreferrer" class="btn btn-ghost-dark">
+            📄 仕入AI調査・配送検討レポート (.md)
           </a>
           <button id="btn-theme-toggle" type="button" class="btn btn-ghost-dark">
             🌙 深海ナイトモードに切替
@@ -40,242 +43,437 @@
       <figure class="hero-art-frame" style="margin:0;">
         <img src="assets/hero-pisces.jpg" alt="対馬の真穴子・甘鯛・のどぐろ・剣先イカとうお座の海流イラスト" />
         <figcaption class="hero-art-caption">
-          <span>♓ うお座の目利き 5商材：煮穴子・穴子フィレ・甘鯛・のどぐろ・剣先イカ</span>
-          <span>拠点：江坂・千里中央 半径20km圏</span>
+          <span>♓ 主力5品目＋拡張5品目｜厳選60店舗（S30・A30）収録</span>
+          <span>拠点：吹田市・江坂駅 半径20km圏</span>
         </figcaption>
       </figure>
     </div>
   </header>
 
   <main class="shell-container">
-    <!-- Navigation & Live Idle-Time Clock -->
-    <div class="top-bar-strip">
-      <nav class="view-tabs" role="tablist" aria-label="表示モード切替">
-        <button id="tab-stores" class="view-tab" role="tab" aria-selected="true" aria-controls="panel-stores" type="button">
-          🐟 厳選お店カルテ（SNS・口コミ＆営業トーク）
+    <!-- Primary Mode Switcher (Sales 60 Stores <-> Procurement & Delivery Simulator) -->
+    <div class="mode-switcher-bar" role="navigation" aria-label="メイン機能切替">
+      <div class="mode-switcher-tabs" role="tablist" aria-label="メインモード">
+        <button id="mode-sales" type="button" role="tab" aria-selected="true" aria-controls="workspace-sales" class="mode-switch-btn is-active">
+          <span class="mode-switch-title">🎯 江坂20km 営業図鑑（厳選60店舗）</span>
+          <span class="mode-switch-sub">富田君の架電・訪問コンパス（SNS精査・トーク・進捗保存）</span>
         </button>
-        <button id="tab-strategy" class="view-tab" role="tab" aria-selected="false" aria-controls="panel-strategy" type="button">
-          🧭 どこが一番刺さる？（勝ち筋3大ターゲット戦略＆20km海図）
+        <button id="mode-procurement" type="button" role="tab" aria-selected="false" aria-controls="workspace-procurement" class="mode-switch-btn">
+          <span class="mode-switch-title">📊 全国冷凍魚 仕入AI調査 ＆ 江坂配送モデル試算</span>
+          <span class="mode-switch-sub">社長・尾崎さん向け｜10品目卸相場・FL原価・配送3案損益シミュレーター</span>
         </button>
-        <button id="tab-playbook" class="view-tab" role="tab" aria-selected="false" aria-controls="panel-playbook" type="button">
-          🛡️ 関西の料理長「断り文句」切り返し図鑑
-        </button>
-      </nav>
+      </div>
 
       <div class="live-tide-status">
         <span id="live-jst-clock" class="live-clock-chip">JST --:-- 計測中</span>
       </div>
     </div>
 
-    <!-- Summary KPI Strip -->
-    <section class="metrics-strip" aria-label="営業リスト集計サマリー">
-      <div class="metric-tile">
-        <div class="metric-label">江坂20km圏 厳選店舗数</div>
-        <div id="kpi-total-stores" class="metric-value">-- 店舗</div>
-        <div id="kpi-rank-breakdown" class="metric-sub">Sランク -- / Aランク --</div>
-      </div>
-      <div class="metric-tile">
-        <div class="metric-label">入口：月1万円定期便 合計</div>
-        <div id="kpi-entry-mrr" class="metric-value">¥---,---</div>
-        <div class="metric-sub">初回サブスク導入ベース（月1万円〜）</div>
-      </div>
-      <div class="metric-tile">
-        <div class="metric-label">育成後：月間見込売上ポテンシャル</div>
-        <div id="kpi-expand-mrr" class="metric-value">¥-,---,---</div>
-        <div class="metric-sub">本口座化（月2.5〜7万円）拡大時</div>
-      </div>
-      <div class="metric-tile">
-        <div class="metric-label">今すぐ架電ゴールデンタイム</div>
-        <div id="kpi-call-ready" class="metric-value">-- 店舗</div>
-        <div class="metric-sub">現在時刻が推奨架電枠内のお店</div>
-      </div>
-      <div class="metric-tile">
-        <div class="metric-label">富田君のアクション進捗</div>
-        <div id="kpi-progress-count" class="metric-value">0 / --</div>
-        <div class="metric-sub">架電済・サンプル打診済件数</div>
-      </div>
-    </section>
-
-    <!-- ===================================================================
-         PANEL 1: 厳選お店カルテ（SNS・口コミ＆営業トーク）
-         =================================================================== -->
-    <section id="panel-stores" role="tabpanel" aria-labelledby="tab-stores">
-      <!-- 5 Signature Fish Interactive Bar -->
-      <div class="fish-pokedex-bar">
-        <div id="fish-selector-grid" class="fish-selector-grid" role="group" aria-label="商材魚種で絞り込む">
-          <!-- Populated dynamically by app.js -->
-        </div>
-        <div id="fish-lore-drawer" class="fish-lore-drawer">
-          <!-- Populated dynamically by app.js -->
-        </div>
+    <!-- =====================================================================
+         WORKSPACE A: 🎯 江坂20km 営業図鑑（厳選60店舗）
+         ===================================================================== -->
+    <div id="workspace-sales" role="tabpanel" aria-labelledby="mode-sales">
+      <!-- Sub-Navigation -->
+      <div class="top-bar-strip">
+        <nav class="view-tabs" role="tablist" aria-label="営業図鑑 表示切替">
+          <button id="tab-stores" class="view-tab" role="tab" aria-selected="true" aria-controls="panel-stores" type="button">
+            🐟 厳選お店カルテ（全60店舗・営業トーク）
+          </button>
+          <button id="tab-strategy" class="view-tab" role="tab" aria-selected="false" aria-controls="panel-strategy" type="button">
+            🧭 どこが一番刺さる？（勝ち筋3大ターゲット戦略＆20km海図）
+          </button>
+          <button id="tab-playbook" class="view-tab" role="tab" aria-selected="false" aria-controls="panel-playbook" type="button">
+            🛡️ 関西の料理長「断り文句」切り返し図鑑
+          </button>
+        </nav>
       </div>
 
-      <!-- Search, Segment, Area, Sort & Pain-Tag Filters -->
-      <div class="filter-panel">
-        <div class="filter-row-main">
-          <input
-            id="search-input"
-            type="search"
-            class="input-control"
-            placeholder="🔍 店名・駅名・口コミワード（例：松笠焼き、ワンオペ、フリット、福島…）で検索"
-            aria-label="キーワード検索"
-          />
-          <select id="segment-filter" class="select-control" aria-label="勝ち筋ターゲット層で絞り込み">
-            <option value="ALL">🎯 ターゲット層：すべて表示</option>
-            <option value="SEG1">① 洋食ポワソン（少人数ビストロ・伊・仏）</option>
-            <option value="SEG2">② 少人数ネオ割烹・創作和食・蕎麦割烹</option>
-            <option value="SEG3">③ 住宅街・阪神間の実力派鮨＆日本料理</option>
-          </select>
-          <select id="area-filter" class="select-control" aria-label="エリアで絞り込み">
-            <option value="ALL">📍 エリア：江坂20km圏 すべて</option>
-            <option value="北摂ホーム（江坂・吹田・豊中・箕面・高槻）">🏠 北摂ホーム（江坂・吹田・豊中・箕面・高槻）</option>
-            <option value="福島・西天満・北新地・天満">🍶 福島・西天満・北新地・天満</option>
-            <option value="靱公園・本町・心斎橋・堀江">🍷 靱公園・本町・心斎橋・堀江</option>
-            <option value="阪神間・淀川（芦屋・夙川・西宮・伊丹・新大阪）">🌊 阪神間・淀川（芦屋・夙川・西宮・伊丹・新大阪）</option>
-          </select>
-          <select id="sort-select" class="select-control" aria-label="並び順">
-            <option value="priority">並び順：おすすめ優先度（S→A）</option>
-            <option value="distance">並び順：江坂駅から近い順（訪問向き）</option>
-            <option value="potential">並び順：育成後の月間見込売上順</option>
-          </select>
+      <!-- Summary KPI Strip -->
+      <section class="metrics-strip" aria-label="営業リスト集計サマリー">
+        <div class="metric-tile">
+          <div class="metric-label">江坂20km圏 厳選店舗数</div>
+          <div id="kpi-total-stores" class="metric-value">-- 店舗</div>
+          <div id="kpi-rank-breakdown" class="metric-sub">Sランク -- / Aランク --</div>
         </div>
+        <div class="metric-tile">
+          <div class="metric-label">入口：月1万円定期便 合計</div>
+          <div id="kpi-entry-mrr" class="metric-value">¥---,---</div>
+          <div class="metric-sub">初回サブスク導入ベース（隔週月2回）</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-label">育成後：月間見込売上ポテンシャル</div>
+          <div id="kpi-expand-mrr" class="metric-value">¥-,---,---</div>
+          <div class="metric-sub">本口座化（月3.5〜8万円）拡大時</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-label">今すぐ架電ゴールデンタイム</div>
+          <div id="kpi-call-ready" class="metric-value">-- 店舗</div>
+          <div class="metric-sub">現在時刻が推奨架電枠内のお店</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-label">富田君のアクション進捗</div>
+          <div id="kpi-progress-count" class="metric-value">0 / --</div>
+          <div class="metric-sub">架電済・サンプル打診済件数</div>
+        </div>
+      </section>
 
-        <div class="filter-row-tags">
-          <div class="quick-tag-group" id="quick-tag-group">
-            <button type="button" class="tag-pill" data-tag="ワンオペ・少人数">👨‍🍳 ワンオペ・少人数店</button>
-            <button type="button" class="tag-pill" data-tag="SNS発信活発">📸 SNS発信が活発</button>
-            <button type="button" class="tag-pill" data-tag="市場遠方メリット">🚚 中央市場から遠方</button>
-            <button type="button" class="tag-pill" data-tag="CALL_NOW">🟢 今が架電時間内</button>
-            <button type="button" class="tag-pill" data-tag="UNCALLED">📞 未架電のみ</button>
-            <button type="button" id="btn-reset-filters" class="mini-link-btn" style="margin-left:4px;">条件クリア</button>
+      <!-- PANEL 1: 厳選お店カルテ -->
+      <section id="panel-stores" role="tabpanel" aria-labelledby="tab-stores">
+        <div class="fish-pokedex-bar">
+          <div id="fish-selector-grid" class="fish-selector-grid" role="group" aria-label="商材魚種で絞り込む">
+            <!-- Populated dynamically by app.js -->
           </div>
-          <div id="result-counter" class="result-counter">表示中: -- 件</div>
-        </div>
-      </div>
-
-      <!-- Store Cards Grid -->
-      <div id="store-grid" class="store-grid">
-        <!-- Populated dynamically by app.js -->
-      </div>
-    </section>
-
-    <!-- ===================================================================
-         PANEL 2: 社長＆富田君へ — 勝ち筋3大ターゲット戦略 ＆ 江坂20km海図
-         =================================================================== -->
-    <section id="panel-strategy" role="tabpanel" aria-labelledby="tab-strategy" hidden>
-      <div class="strategy-layout">
-        <div class="strategy-lead-box">
-          <h2>🧭 なぜ「全方位営業」をやめ、この『3大ターゲット層』に集中すべきなのか？</h2>
-          <p style="margin:0 0 12px; color:var(--ink-secondary);">
-            北海道（空輸コストと産地偏りがある市場）と違い、大阪・江坂20km圏内には<strong>大阪市中央卸売市場（本場）・木津市場・北部市場</strong>が存在します。そのため、見習い職人が何人もいる客単価3万円超の老舗店にアタックしても「うちは毎朝市場で丸魚を引いて自分の手で仕込む」と断られます。逆に客単価3,500円の大衆居酒屋では対馬産の穴子・甘鯛・のどぐろの原価が合いません。
-          </p>
-          <p style="margin:0; font-weight:600; color:var(--ink-primary);">
-            ファインアトラスの武器である<strong>「① 月額1万円の小口定額から始められる」「② フィレ・三枚おろし・煮穴子など加工度を店ごとに調整できる」「③ ファインスタッフ由来の『調理人不足・仕込み外注』視点」</strong>が120%突き刺さるのは、以下の<strong>3つのスイートスポット層</strong>です。
-          </p>
+          <div id="fish-lore-drawer" class="fish-lore-drawer">
+            <!-- Populated dynamically by app.js -->
+          </div>
         </div>
 
-        <div class="segment-cards-3col">
-          <article class="segment-strategy-card">
-            <div class="store-badges-top">
-              <span class="rank-badge rank-S">第1本命｜即決率 No.1</span>
-              <span class="distance-chip">単価 7,000〜15,000円</span>
-            </div>
-            <h3>① オーナーシェフ1〜2名の「魚介推しビストロ・イタリアン・フレンチ」</h3>
-            <ul class="segment-kpi-list">
-              <li><strong>最大の痛み：</strong>肉と違い、魚の「ウロコ引き・内臓処理・ヌメリ取り」は狭い洋食厨房のシンクが汚れ、仕込み時間も奪う最大のストレス。</li>
-              <li><strong>なぜ月1万円が刺さる？：</strong>毎日大量には使わないが、週末コースのポワソン用に「鱗付き甘鯛フィレ」「のどぐろフィレ」「穴子フィレ」「剣先イカ」が月1万円で届くサイズ感が完璧に一致。</li>
-              <li><strong>決まりやすい加工度：</strong>甘鯛鱗付きフィレ（ポワレ用）、穴子フィレ（フリット用）、剣先イカ（カルパッチョ・パスタ用）。</li>
-            </ul>
-            <button type="button" class="btn btn-outline seg-jump-btn" data-jump-seg="SEG1" style="margin-top:auto;">
-              この層のターゲット店舗を見る →
-            </button>
-          </article>
+        <div class="filter-panel">
+          <div class="filter-row-main">
+            <input
+              id="search-input"
+              type="search"
+              class="input-control"
+              placeholder="🔍 店名・駅名・電話番号・口コミワード（例：松笠焼き、ワンオペ、フリット、福島…）で検索"
+              aria-label="キーワード検索"
+            />
+            <select id="segment-filter" class="select-control" aria-label="勝ち筋ターゲット層で絞り込み">
+              <option value="ALL">🎯 ターゲット層：すべて表示（60店）</option>
+              <option value="SEG1">① 洋食ポワソン（少人数ビストロ・伊・仏）</option>
+              <option value="SEG2">② 少人数ネオ割烹・創作和食・蕎麦割烹</option>
+              <option value="SEG3">③ 住宅街・阪神間の実力派鮨＆日本料理</option>
+            </select>
+            <select id="area-filter" class="select-control" aria-label="エリアで絞り込み">
+              <option value="ALL">📍 エリア：江坂20km圏 すべて</option>
+              <option value="北摂ホーム（江坂・吹田・豊中・箕面・高槻）">🏠 北摂ホーム（江坂・吹田・豊中・箕面・高槻）</option>
+              <option value="福島・西天満・北新地・天満">🍶 福島・西天満・北新地・天満</option>
+              <option value="靱公園・本町・心斎橋・堀江">🍷 靱公園・本町・心斎橋・堀江</option>
+              <option value="阪神間・淀川（芦屋・夙川・西宮・伊丹・新大阪）">🌊 阪神間・淀川（芦屋・夙川・西宮・伊丹・新大阪）</option>
+            </select>
+            <select id="sort-select" class="select-control" aria-label="並び順">
+              <option value="priority">並び順：おすすめ優先度（S→A）</option>
+              <option value="distance">並び順：江坂駅から近い順（訪問向き）</option>
+              <option value="potential">並び順：育成後の月間見込売上順</option>
+            </select>
+          </div>
 
-          <article class="segment-strategy-card">
-            <div class="store-badges-top">
-              <span class="rank-badge rank-S">第2本命｜定着率・LTV No.1</span>
-              <span class="distance-chip">単価 6,500〜16,000円</span>
+          <div class="filter-row-tags">
+            <div class="quick-tag-group" id="quick-tag-group">
+              <button type="button" class="tag-pill" data-tag="ワンオペ・少人数">👨‍🍳 ワンオペ・少人数店</button>
+              <button type="button" class="tag-pill" data-tag="SNS発信活発">📸 SNS発信が活発</button>
+              <button type="button" class="tag-pill" data-tag="市場遠方メリット">🚚 中央市場から遠方</button>
+              <button type="button" class="tag-pill" data-tag="CALL_NOW">🟢 今が架電時間内</button>
+              <button type="button" class="tag-pill" data-tag="UNCALLED">📞 未架電のみ</button>
+              <button type="button" id="btn-reset-filters" class="mini-link-btn" style="margin-left:4px;">条件クリア</button>
             </div>
-            <h3>② ワンオペ・少人数の「ネオ割烹・創作和食・蕎麦割烹」</h3>
-            <ul class="segment-kpi-list">
-              <li><strong>最大の痛み：</strong>二番手（追い回し）が採用できず、大将1人が深夜まで穴子炊きや魚おろしで残業中。特に<strong>北摂エリアは市場が遠く</strong>、<strong>蕎麦割烹は蕎麦打ちで魚の仕込み時間が足りない</strong>隠れ鉱脈。</li>
-              <li><strong>なぜカスタムが刺さる？：</strong>「全部既製品」は大将のプライドが許さないが、「一番しんどい開き・三枚おろしだけ産地代行し、焼き・味付けは店で仕上げる」提案なら大歓迎される。</li>
-              <li><strong>決まりやすい加工度：</strong>のどぐろ三枚おろし・開き、生穴子フィレ（白焼き・天ぷら用）、無添加煮穴子。</li>
-            </ul>
-            <button type="button" class="btn btn-outline seg-jump-btn" data-jump-seg="SEG2" style="margin-top:auto;">
-              この層のターゲット店舗を見る →
-            </button>
-          </article>
-
-          <article class="segment-strategy-card">
-            <div class="store-badges-top">
-              <span class="rank-badge rank-A">第3本命｜月3〜8万円へ拡大</span>
-              <span class="distance-chip">単価 8,000〜18,000円</span>
-            </div>
-            <h3>③ 北摂・阪神間（芦屋・夙川・西宮・伊丹）の「地域一番・個人鮨」</h3>
-            <ul class="segment-kpi-list">
-              <li><strong>最大の痛み：</strong>住宅街に富裕層常連を抱え高単価だが、大阪本場・木津市場まで毎朝車で往復する体力負担と、時化（しけ）時のネタ欠品・高騰リスクが重い。</li>
-              <li><strong>Land &amp; Expand戦略：</strong>最初から全量切替を迫らず、「時化の日・週末ピークの保険として月1万円のサブ定期便」で口座を開き、品質納得後に月3〜8万円の主力取引へ育てる。</li>
-              <li><strong>決まりやすい加工度：</strong>特上煮穴子（炙り握り用）、剣先イカ柵（赤酢シャリ用）、のどぐろフィレ（炙り握り用）。</li>
-            </ul>
-            <button type="button" class="btn btn-outline seg-jump-btn" data-jump-seg="SEG3" style="margin-top:auto;">
-              この層のターゲット店舗を見る →
-            </button>
-          </article>
+            <div id="result-counter" class="result-counter">表示中: -- 件</div>
+          </div>
         </div>
 
-        <div class="radar-grid-2col">
-          <div class="radar-box">
-            <h3 style="font-family:var(--font-serif); margin:0 0 8px;">📡 江坂駅中心・半径20km ターゲット海図（クリックで店舗表示）</h3>
-            <p style="font-size:0.82rem; color:var(--ink-muted); margin:0 0 12px;">
-              中心＝江坂駅（5km / 10km / 15km / 20km 同心円）。赤い点はSランク、青い点はAランク店舗です。
+        <div id="store-grid" class="store-grid">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </section>
+
+      <!-- PANEL 2: 勝ち筋3大ターゲット戦略 ＆ 江坂20km海図 -->
+      <section id="panel-strategy" role="tabpanel" aria-labelledby="tab-strategy" hidden>
+        <div class="strategy-layout">
+          <div class="strategy-lead-box">
+            <h2>🧭 なぜ「全方位営業」をやめ、この『3大ターゲット層（厳選60店舗）』に集中すべきなのか？</h2>
+            <p style="margin:0 0 12px; color:var(--ink-secondary);">
+              北海道（空輸コストと産地偏りがある市場）と違い、大阪・江坂20km圏内には<strong>大阪市中央卸売市場（本場）・木津市場・北部市場</strong>が存在します。そのため、見習い職人が何人もいる客単価3万円超の老舗店にアタックしても「うちは毎朝市場で丸魚を引いて自分の手で仕込む」と断られます。逆に客単価3,500円の大衆居酒屋では対馬産の穴子・甘鯛・のどぐろの原価が合いません。
             </p>
-            <div id="esaka-radar-container" class="radar-svg-wrap">
-              <!-- Populated by app.js SVG generator -->
-            </div>
+            <p style="margin:0; font-weight:600; color:var(--ink-primary);">
+              ファインアトラスの武器である<strong>「① 月額1万円（隔週）の小口定額から始められる」「② フィレ・三枚おろし・煮穴子など加工度を店ごとに調整できる」「③ ファインスタッフ由来の『調理人不足・仕込み外注』視点」</strong>が120%突き刺さるのは、以下の<strong>3つのスイートスポット層</strong>です。
+            </p>
           </div>
 
-          <div class="radar-box">
-            <h3 style="font-family:var(--font-serif); margin:0 0 10px;">⚠️ 富田君が時間を浪費しないための「追わない層（除外基準）」</h3>
-            <table class="avoid-table">
+          <div class="segment-cards-3col">
+            <article class="segment-strategy-card">
+              <div class="store-badges-top">
+                <span class="rank-badge rank-S">第1本命｜即決率 No.1</span>
+                <span class="distance-chip">単価 7,000〜15,000円</span>
+              </div>
+              <h3>① オーナーシェフ1〜2名の「魚介推しビストロ・イタリアン・フレンチ」</h3>
+              <ul class="segment-kpi-list">
+                <li><strong>最大の痛み：</strong>肉と違い、魚の「ウロコ引き・内臓処理・ヌメリ取り」は狭い洋食厨房のシンクが汚れ、仕込み時間も奪う最大のストレス。</li>
+                <li><strong>なぜ月1万円が刺さる？：</strong>毎日大量には使わないが、週末コースのポワソン用に「鱗付き甘鯛フィレ」「のどぐろフィレ」「穴子フィレ」「剣先イカ」が月1万円で届くサイズ感が完璧に一致。</li>
+                <li><strong>決まりやすい加工度：</strong>甘鯛鱗付きフィレ（ポワレ用）、穴子フィレ（フリット用）、剣先イカ（カルパッチョ・パスタ用）。</li>
+              </ul>
+              <button type="button" class="btn btn-outline seg-jump-btn" data-jump-seg="SEG1" style="margin-top:auto;">
+                この層のターゲット店舗を見る →
+              </button>
+            </article>
+
+            <article class="segment-strategy-card">
+              <div class="store-badges-top">
+                <span class="rank-badge rank-S">第2本命｜定着率・LTV No.1</span>
+                <span class="distance-chip">単価 6,500〜16,000円</span>
+              </div>
+              <h3>② ワンオペ・少人数の「ネオ割烹・創作和食・蕎麦割烹」</h3>
+              <ul class="segment-kpi-list">
+                <li><strong>最大の痛み：</strong>二番手（追い回し）が採用できず、大将1人が深夜まで穴子炊きや魚おろしで残業中。特に<strong>北摂エリアは市場が遠く</strong>、<strong>蕎麦割烹は蕎麦打ちで魚の仕込み時間が足りない</strong>隠れ鉱脈。</li>
+                <li><strong>なぜカスタムが刺さる？：</strong>「全部既製品」は大将のプライドが許さないが、「一番しんどい開き・三枚おろしだけ産地代行し、焼き・味付けは店で仕上げる」提案なら大歓迎される。</li>
+                <li><strong>決まりやすい加工度：</strong>のどぐろ三枚おろし・開き、生穴子フィレ（白焼き・天ぷら用）、無添加煮穴子。</li>
+              </ul>
+              <button type="button" class="btn btn-outline seg-jump-btn" data-jump-seg="SEG2" style="margin-top:auto;">
+                この層のターゲット店舗を見る →
+              </button>
+            </article>
+
+            <article class="segment-strategy-card">
+              <div class="store-badges-top">
+                <span class="rank-badge rank-A">第3本命｜月3〜8万円へ拡大</span>
+                <span class="distance-chip">単価 8,000〜18,000円</span>
+              </div>
+              <h3>③ 北摂・阪神間（芦屋・夙川・苦楽園・西宮・伊丹）の「個人鮨」</h3>
+              <ul class="segment-kpi-list">
+                <li><strong>最大の痛み：</strong>住宅街に富裕層常連を抱え高単価だが、大阪本場・木津市場まで毎朝車で往復する体力負担と、時化（しけ）時のネタ欠品・高騰リスクが重い。</li>
+                <li><strong>Land &amp; Expand戦略：</strong>最初から全量切替を迫らず、「時化の日・週末ピークの保険として月1万円のサブ定期便」で口座を開き、品質納得後に月3〜8万円の主力取引へ育てる。</li>
+                <li><strong>決まりやすい加工度：</strong>特上煮穴子（炙り握り用）、剣先イカ柵（赤酢シャリ用）、のどぐろフィレ（炙り握り用）。</li>
+              </ul>
+              <button type="button" class="btn btn-outline seg-jump-btn" data-jump-seg="SEG3" style="margin-top:auto;">
+                この層のターゲット店舗を見る →
+              </button>
+            </article>
+          </div>
+
+          <div class="radar-grid-2col">
+            <div class="radar-box">
+              <h3 style="font-family:var(--font-serif); margin:0 0 8px;">📡 江坂駅中心・半径20km ターゲット海図（全60店舗・クリックで詳細表示）</h3>
+              <p style="font-size:0.82rem; color:var(--ink-muted); margin:0 0 12px;">
+                中心＝江坂駅（5km / 10km / 15km / 20km 同心円）。朱色の点はSランク（30店）、藍色の点はAランク（30店）です。
+              </p>
+              <div id="esaka-radar-container" class="radar-svg-wrap">
+                <!-- Populated by app.js SVG generator -->
+              </div>
+            </div>
+
+            <div class="radar-box">
+              <h3 style="font-family:var(--font-serif); margin:0 0 10px;">⚠️ 富田君が時間を浪費しないための「追わない層（除外基準）」</h3>
+              <table class="avoid-table">
+                <thead>
+                  <tr>
+                    <th>業態・層</th>
+                    <th>なぜ今アプローチしないか（構造的理由）</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>超高級・弟子多数店</strong><br /><span style="font-size:0.76rem; color:var(--ink-muted);">単価3万円超・厨房5名以上</span></td>
+                    <td>見習い職人の修業として丸魚の仕込みを行うため「時短・下処理代行」が価値にならず、月1万円の小口枠も響きにくい。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>低単価・大衆海鮮居酒屋</strong><br /><span style="font-size:0.76rem; color:var(--ink-muted);">単価3,000〜4,500円</span></td>
+                    <td>1皿売価580〜780円のため、対馬産穴子・甘鯛・のどぐろの原価（FL比率）が合わず、価格交渉だけで疲弊する。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>大手飲食チェーン直営店</strong><br /><span style="font-size:0.76rem; color:var(--ink-muted);">本社セントラル購買型</span></td>
+                    <td>店舗の料理長に決裁権がなく、本部口座開設に半年以上かかる。オーナー決裁の個人店・2〜3店舗展開企業を優先する。</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div style="margin-top:16px; padding:13px 15px; background-color:var(--bg-tint-kelp); border-radius:var(--radius-md); font-size:0.84rem;">
+                <strong>💡 富田君の黄金ルート提案：</strong><br />
+                ① <strong>雨の日・電話営業日（14:00〜16:30）</strong>：福島・西天満・靱公園・芦屋/苦楽園の「洋食ポワソン＆少人数割烹」へサンプル送付打診。<br />
+                ② <strong>晴れの日・ご近所訪問日</strong>：江坂から自転車・御堂筋線15分圏内の「江坂・東三国・西中島・吹田・豊中・箕面」へお試しセット持参で顔出し！
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANEL 3: 関西の料理長「断り文句」切り返し図鑑 -->
+      <section id="panel-playbook" role="tabpanel" aria-labelledby="tab-playbook" hidden>
+        <div id="playbook-list" class="playbook-list">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </section>
+    </div>
+
+    <!-- =====================================================================
+         WORKSPACE B: 📊 全国冷凍魚 仕入AI調査 ＆ 江坂配送モデル試算
+         ===================================================================== -->
+    <section id="workspace-procurement" role="tabpanel" aria-labelledby="mode-procurement" hidden>
+      <!-- Executive KPI Highlights -->
+      <div class="metrics-strip proc-kpi-strip" aria-label="仕入AI調査＆配送損益ハイライト">
+        <div class="metric-tile">
+          <div class="metric-label">AI横断調査 冷凍水産品目</div>
+          <div class="metric-value">全 10 品目</div>
+          <div class="metric-sub">主力5商材 ＋ 客単価UP拡張5商材</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-label">飲食店1人前 実質原価率</div>
+          <div class="metric-value">26.5〜30.2%</div>
+          <div class="metric-sub">高歩留フィレ納品で適正FLを確保</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-label">FA想定卸 粗利率レンジ</div>
+          <div class="metric-value">30.6〜35.7%</div>
+          <div class="metric-sub">全10品目平均34.1%・中間マージン圧縮</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-label">月1万円入口プラン 鉄則</div>
+          <div class="metric-value">隔週（月2回）</div>
+          <div class="metric-sub">週1クール便は赤字(-¥680)→隔週で+¥1,760</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-label">自社軽冷凍バン 移行分岐点</div>
+          <div class="metric-value">23店 ／ 39店</div>
+          <div class="metric-sub">23店で単体黒字／39店でクール便利益逆転</div>
+        </div>
+      </div>
+
+      <!-- Executive Conclusion Callout -->
+      <div class="exec-conclusion-box">
+        <div class="exec-conclusion-badge">📌 社長・尾崎さん向け エグゼクティブ結論（仕入れ × 江坂20km配送モデル）</div>
+        <p id="proc-exec-conclusion" class="exec-conclusion-text"></p>
+      </div>
+
+      <!-- 1. Interactive Esaka 20km Delivery Model P&L Simulator -->
+      <div class="proc-section-card">
+        <div class="proc-section-head">
+          <div>
+            <h2 class="proc-section-title">🚚 江坂拠点（半径20km）配送3モデル 損益＆損益分岐シミュレーター</h2>
+            <p id="delivery-depot-label" class="proc-section-sub"></p>
+          </div>
+          <div class="sim-preset-group" role="group" aria-label="フェーズプリセット">
+            <button type="button" class="mini-link-btn sim-preset-btn" data-stores="15" data-order="10000" data-drops="2" data-gm="42">
+              ① 入口立上げ期（15店・月1万・隔週）
+            </button>
+            <button type="button" class="mini-link-btn sim-preset-btn" data-stores="15" data-order="10000" data-drops="4" data-gm="42">
+              ⚠️ NG検証（15店・月1万・毎週クール便）
+            </button>
+            <button type="button" class="mini-link-btn sim-preset-btn is-active" data-stores="39" data-order="28000" data-drops="4" data-gm="40">
+              ② 自社便切替点（39店・月2.8万・週1）
+            </button>
+            <button type="button" class="mini-link-btn sim-preset-btn" data-stores="60" data-order="28000" data-drops="4" data-gm="40">
+              ③ 60店フル稼働（60店・週1巡回）
+            </button>
+          </div>
+        </div>
+
+        <div class="sim-controls-grid">
+          <label class="sim-control-box">
+            <span class="sim-control-head">
+              <span>稼働定期口座数</span>
+              <strong id="sim-stores-val" class="sim-mono-val">39 店舗</strong>
+            </span>
+            <input id="sim-stores-input" type="range" min="1" max="60" step="1" value="39" />
+            <span class="sim-range-hint">1店舗 〜 厳選60店舗フル稼働</span>
+          </label>
+
+          <label class="sim-control-box">
+            <span class="sim-control-head">
+              <span>平均月間発注額（基本）</span>
+              <strong id="sim-order-val" class="sim-mono-val">¥28,000 /月</strong>
+            </span>
+            <input id="sim-order-input" type="range" min="10000" max="45000" step="2000" value="28000" />
+            <span class="sim-range-hint">入口 ¥10,000 〜 本口座 ¥45,000</span>
+          </label>
+
+          <label class="sim-control-box">
+            <span class="sim-control-head">
+              <span>月間配送回数／店</span>
+              <strong id="sim-drops-val" class="sim-mono-val">月 4 回（毎週）</strong>
+            </span>
+            <select id="sim-drops-select" class="select-control">
+              <option value="1">月 1 回（月次まとめ冷凍便）</option>
+              <option value="2">月 2 回（隔週配送・月1万円プラン推奨）</option>
+              <option value="3">月 3 回（旬替わり3回便）</option>
+              <option value="4" selected>月 4 回（毎週曜日固定ルート・本口座標準）</option>
+            </select>
+          </label>
+
+          <label class="sim-control-box">
+            <span class="sim-control-head">
+              <span>食材粗利率（配送費控除前）</span>
+              <strong id="sim-gm-val" class="sim-mono-val">40%</strong>
+            </span>
+            <input id="sim-gm-input" type="range" min="32" max="46" step="1" value="40" />
+            <span class="sim-range-hint">標準 38%〜42%（産地直結・高歩留加工）</span>
+          </label>
+        </div>
+
+        <div id="sim-alert-banner" class="sim-alert-banner" hidden></div>
+
+        <div id="delivery-models-grid" class="delivery-models-grid">
+          <!-- Populated dynamically by app.js -->
+        </div>
+
+        <!-- Weekday 4-Cluster Schedule -->
+        <div class="cluster-schedule-wrap">
+          <h3 class="proc-sub-heading">🗓️ 江坂デポ発・曜日別4クラスター巡回ルート計画（Phase 2：全60店舗カバー）</h3>
+          <div class="table-scroll-wrap">
+            <table class="proc-table cluster-table">
               <thead>
                 <tr>
-                  <th>業態・層</th>
-                  <th>なぜ今アプローチしないか（構造的理由）</th>
+                  <th>巡回曜日</th>
+                  <th>クラスター便名</th>
+                  <th>対象エリア（半径20km圏）</th>
+                  <th>推奨ルート・稼働時間目安</th>
+                  <th>ターゲット店舗数</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td><strong>超高級・弟子多数店</strong><br /><span style="font-size:0.76rem; color:var(--ink-muted);">単価3万円超・厨房5名以上</span></td>
-                  <td>見習い職人の修業として丸魚の仕込みを行うため「時短・下処理代行」が価値にならず、月1万円の小口枠も響きにくい。</td>
-                </tr>
-                <tr>
-                  <td><strong>低単価・大衆海鮮居酒屋</strong><br /><span style="font-size:0.76rem; color:var(--ink-muted);">単価3,000〜4,500円</span></td>
-                  <td>1皿売価580〜780円のため、対馬産穴子・甘鯛・のどぐろの原価（FL比率）が合わず、価格交渉だけで疲弊する。</td>
-                </tr>
-                <tr>
-                  <td><strong>大手飲食チェーン直営店</strong><br /><span style="font-size:0.76rem; color:var(--ink-muted);">本社セントラル購買型</span></td>
-                  <td>店舗の料理長に決裁権がなく、本部口座開設に半年以上かかる。オーナー決裁の個人店・2〜3店舗展開企業を優先する。</td>
-                </tr>
+              <tbody id="cluster-schedule-tbody">
+                <!-- Populated dynamically by app.js -->
               </tbody>
             </table>
-
-            <div style="margin-top:16px; padding:13px 15px; background-color:var(--bg-tint-kelp); border-radius:var(--radius-md); font-size:0.84rem;">
-              <strong>💡 富田君の黄金ルート提案：</strong><br />
-              ① <strong>雨の日・電話営業日（14:00〜16:30）</strong>：福島・西天満・靱公園・芦屋/夙川の「洋食ポワソン＆少人数割烹」へサンプル送付打診。<br />
-              ② <strong>晴れの日・ご近所訪問日</strong>：江坂から自転車・電車15分圏内の「江坂・吹田・豊中・箕面（北摂ホーム）」へお試しセット持参で顔出し！
-            </div>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- ===================================================================
-         PANEL 3: 関西の料理長「断り文句」切り返し図鑑
-         =================================================================== -->
-    <section id="panel-playbook" role="tabpanel" aria-labelledby="tab-playbook" hidden>
-      <div id="playbook-list" class="playbook-list">
-        <!-- Populated dynamically by app.js -->
+      <!-- 2. 10 Frozen Seafood Items Wholesale AI Research Table -->
+      <div class="proc-section-card">
+        <div class="proc-section-head">
+          <div>
+            <h2 id="proc-headline" class="proc-section-title">🐟 全国業務用冷凍魚10品目 仕入れ相場AI調査 ＆ 飲食店1人前FL原価</h2>
+            <p id="proc-summary-lead" class="proc-section-sub"></p>
+          </div>
+          <div class="quick-tag-group" id="proc-tier-filter" role="group" aria-label="商材区分フィルター">
+            <button type="button" class="tag-pill is-active" data-tier="ALL">すべて表示（10品目）</button>
+            <button type="button" class="tag-pill" data-tier="主力5品目">主力5品目（対馬・看板）</button>
+            <button type="button" class="tag-pill" data-tier="拡張5品目">拡張アップセル5品目</button>
+          </div>
+        </div>
+
+        <div class="table-scroll-wrap">
+          <table class="proc-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>区分</th>
+                <th>品目名・産地規格ベンチマーク</th>
+                <th>市場・B2B卸相場<br />(円/kg)</th>
+                <th>FA想定卸単価<br />(想定粗利率)</th>
+                <th>可食歩留まり<br />(丸魚比較)</th>
+                <th>飲食店1人前原価<br />(正味g・原価率)</th>
+                <th>急速凍結優位性 ＆ 営業提案切り口</th>
+              </tr>
+            </thead>
+            <tbody id="proc-items-tbody">
+              <!-- Populated dynamically by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 3. Freezing Technology Drip Comparison & Sources -->
+      <div class="proc-section-card">
+        <h2 class="proc-section-title" style="margin-bottom:6px;">❄️ 凍結技術別 ドリップ流出率・品質比較（なぜ関西の料理長に『産地急速凍結』が通るのか）</h2>
+        <p class="proc-section-sub" style="margin-bottom:16px;">
+          関西の割烹・鮨職人が持つ「冷凍＝水っぽい・身が割れる」という過去の不信感は、旧式の緩慢冷凍（ドリップ5〜10%）が原因です。最大氷結晶生成帯（-1〜-5℃）を短時間で通過させた高真空急速凍結品は、生鮮時化魚よりも歩留まり・品質が安定します。
+        </p>
+
+        <div id="freezing-cards-grid" class="freezing-cards-grid">
+          <!-- Populated dynamically by app.js -->
+        </div>
+
+        <div class="proc-sources-box">
+          <strong>📚 調査参照データソース（2025〜2026年 公開市況・業務用B2B卸基準）：</strong>
+          <ul id="proc-sources-list" class="proc-sources-list"></ul>
+        </div>
       </div>
     </section>
   </main>

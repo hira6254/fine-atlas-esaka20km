@@ -996,10 +996,380 @@ body {
 }
 
 /* ==========================================================================
+   Primary Mode Switcher & Procurement / Delivery Simulator (v2.0)
+   ========================================================================== */
+.mode-switcher-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 0 12px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.mode-switcher-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  flex: 1 1 680px;
+}
+
+.mode-switch-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--line-strong);
+  background-color: var(--bg-elevated);
+  color: var(--ink-primary);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.16s var(--ease-out), background-color 0.2s var(--ease-out), border-color 0.2s var(--ease-out);
+}
+
+.mode-switch-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-tide);
+}
+
+.mode-switch-btn.is-active {
+  background-color: var(--bg-hero);
+  border-color: var(--bg-hero);
+  color: var(--ink-on-dark);
+}
+
+[data-theme="dark"] .mode-switch-btn.is-active {
+  background-color: hsl(196, 62%, 22%);
+  border-color: hsl(192, 68%, 50%);
+}
+
+.mode-switch-title {
+  font-family: var(--font-serif);
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.mode-switch-sub {
+  font-size: 0.76rem;
+  opacity: 0.8;
+}
+
+.exec-conclusion-box {
+  background-color: var(--bg-tint-warm);
+  border: 1px solid var(--line-strong);
+  border-left: 4px solid var(--accent-amber);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 22px;
+}
+
+.exec-conclusion-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-amber);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.exec-conclusion-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--ink-primary);
+  font-weight: 500;
+}
+
+.proc-section-card {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  padding: 24px 26px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.proc-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.proc-section-title {
+  font-family: var(--font-serif);
+  font-size: 1.28rem;
+  margin: 0 0 5px;
+  color: var(--ink-primary);
+}
+
+.proc-section-sub {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+  max-width: 82ch;
+}
+
+.proc-sub-heading {
+  font-family: var(--font-serif);
+  font-size: 1.06rem;
+  margin: 24px 0 10px;
+  color: var(--ink-primary);
+}
+
+/* Delivery Simulator Controls & Cards */
+.sim-preset-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sim-preset-btn.is-active {
+  background-color: var(--accent-tide);
+  border-color: var(--accent-tide);
+  color: #fff;
+}
+
+[data-theme="dark"] .sim-preset-btn.is-active {
+  color: hsl(206, 55%, 8%);
+}
+
+.sim-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  background-color: var(--bg-subtle);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.sim-control-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--ink-secondary);
+}
+
+.sim-control-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
+
+.sim-mono-val {
+  font-family: var(--font-mono);
+  font-size: 0.94rem;
+  color: var(--accent-tide);
+}
+
+.sim-control-box input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-tide);
+  cursor: pointer;
+}
+
+.sim-range-hint {
+  font-size: 0.73rem;
+  color: var(--ink-muted);
+}
+
+.sim-alert-banner {
+  background-color: hsla(11, 78%, 50%, 0.1);
+  border: 1px solid var(--accent-vermilion);
+  color: var(--accent-vermilion);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.delivery-models-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.delivery-model-card {
+  background-color: var(--bg-canvas);
+  border: 1.5px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.delivery-model-card.is-winner {
+  border-color: var(--accent-kelp);
+  background-color: var(--bg-tint-kelp);
+}
+
+.delivery-model-title {
+  font-family: var(--font-serif);
+  font-size: 1.04rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink-primary);
+}
+
+.delivery-pl-box {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.82rem;
+}
+
+.delivery-pl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.delivery-pl-profit {
+  border-top: 1px solid var(--line-strong);
+  padding-top: 6px;
+  margin-top: 2px;
+  font-weight: 700;
+  font-size: 0.94rem;
+}
+
+.profit-positive {
+  font-family: var(--font-mono);
+  color: var(--accent-kelp);
+}
+
+.profit-negative {
+  font-family: var(--font-mono);
+  color: var(--accent-vermilion);
+}
+
+.delivery-meta-note {
+  font-size: 0.79rem;
+  color: var(--ink-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Procurement & Cluster Tables */
+.table-scroll-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+}
+
+.proc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+  background-color: var(--bg-elevated);
+}
+
+.proc-table th,
+.proc-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--line-soft);
+  text-align: left;
+  vertical-align: top;
+}
+
+.proc-table th {
+  background-color: var(--bg-subtle);
+  color: var(--ink-primary);
+  font-weight: 700;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.proc-table tbody tr:hover {
+  background-color: var(--bg-canvas);
+}
+
+.num-col {
+  font-family: var(--font-mono);
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.fl-pill {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background-color: var(--bg-tint-kelp);
+  color: var(--accent-kelp);
+}
+
+/* Freezing Comparison 3-Column Cards */
+.freezing-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.freezing-card {
+  background-color: var(--bg-canvas);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.freezing-card.is-best {
+  background-color: var(--bg-tint-sea);
+  border-color: var(--accent-tide);
+}
+
+.freezing-drip-stat {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.proc-sources-box {
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 0.81rem;
+  color: var(--ink-secondary);
+}
+
+.proc-sources-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+/* ==========================================================================
    Responsive Design (Mobile Field Walk & Tablet)
    ========================================================================== */
 @media (max-width: 1024px) {
   .atlas-hero-inner {
+    grid-template-columns: 1fr;
+  }
+  .mode-switcher-tabs {
     grid-template-columns: 1fr;
   }
   .metrics-strip {
@@ -1008,13 +1378,16 @@ body {
   .fish-selector-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .filter-row-main {
+  .filter-row-main,
+  .sim-controls-grid {
     grid-template-columns: 1fr 1fr;
   }
   .store-grid,
   .segment-cards-3col,
   .radar-grid-2col,
-  .playbook-card {
+  .playbook-card,
+  .delivery-models-grid,
+  .freezing-cards-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -1026,13 +1399,17 @@ body {
   .atlas-hero-inner {
     padding: 20px 14px;
   }
+  .proc-section-card {
+    padding: 16px 14px;
+  }
   .metrics-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .fish-selector-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .filter-row-main {
+  .filter-row-main,
+  .sim-controls-grid {
     grid-template-columns: 1fr;
   }
   .crm-controls-row {

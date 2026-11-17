@@ -1,6 +1,6 @@
 /* ==========================================================================
-   FINE ATLAS — 江坂20km圏内 お魚カスタム定期便 営業図鑑 (app.js)
-   Interactive Logic: Filtering, JST Call-Time Radar, CRM Persistence, 20km Map
+   FINE ATLAS — 江坂20km圏内 お魚カスタム定期便 営業図鑑 & 仕入・配送戦略 (app.js)
+   Interactive Logic: 60-Store Atlas, JST Call Radar, CRM, AI Procurement & P&L Sim
    ========================================================================== */
 
 (function () {
@@ -12,14 +12,24 @@
   const STORES = window.FINE_ATLAS_STORES || [];
   const FISH_CATALOG = window.FINE_ATLAS_FISH_CATALOG || [];
   const PLAYBOOK = window.FINE_ATLAS_PLAYBOOK || [];
+  const PROCUREMENT = window.FINE_ATLAS_PROCUREMENT || { items: [], freezingComparison: [], sources: [] };
+  const DELIVERY = window.FINE_ATLAS_DELIVERY_MODELS || { models: [], weekdayClusters: [] };
 
   const state = {
+    mode: "sales",
     fish: "ALL",
     search: "",
     segment: "ALL",
     area: "ALL",
     sort: "priority",
     activeTags: new Set(),
+    procTier: "ALL",
+    sim: {
+      stores: 39,
+      order: 28000,
+      drops: 4,
+      gm: 40
+    },
     crm: loadCrmState()
   };
 
@@ -89,7 +99,18 @@
   }
 
   function formatYen(num) {
-    return "¥" + Number(num || 0).toLocaleString("ja-JP");
+    const rounded = Math.round(Number(num || 0));
+    if (rounded < 0) {
+      return "-¥" + Math.abs(rounded).toLocaleString("ja-JP");
+    }
+    return "¥" + rounded.toLocaleString("ja-JP");
+  }
+
+  function formatSignedYen(num) {
+    const rounded = Math.round(Number(num || 0));
+    if (rounded > 0) return "+¥" + rounded.toLocaleString("ja-JP");
+    if (rounded < 0) return "-¥" + Math.abs(rounded).toLocaleString("ja-JP");
+    return "¥0";
   }
 
   function showToast(msg) {
@@ -127,6 +148,27 @@
       showToast("コピーに失敗しました");
     }
     document.body.removeChild(ta);
+  }
+
+  // Primary Workspace Mode Activation
+  function activateMode(mode) {
+    state.mode = mode === "procurement" ? "procurement" : "sales";
+    const salesBtn = document.getElementById("mode-sales");
+    const procBtn = document.getElementById("mode-procurement");
+    const salesWs = document.getElementById("workspace-sales");
+    const procWs = document.getElementById("workspace-procurement");
+
+    const isSales = state.mode === "sales";
+    if (salesBtn) {
+      salesBtn.classList.toggle("is-active", isSales);
+      salesBtn.setAttribute("aria-selected", isSales ? "true" : "false");
+    }
+    if (procBtn) {
+      procBtn.classList.toggle("is-active", !isSales);
+      procBtn.setAttribute("aria-selected", !isSales ? "true" : "false");
+    }
+    if (salesWs) salesWs.hidden = !isSales;
+    if (procWs) procWs.hidden = isSales;
   }
 
   // Update Top Summary KPIs & Clock
@@ -273,7 +315,6 @@
       if (state.sort === "potential") {
         return (b.monthlySales || 0) - (a.monthlySales || 0);
       }
-      // Default: S before A, then closer distance
       if (a.rank !== b.rank) {
         return a.rank === "S" ? -1 : 1;
       }
@@ -518,7 +559,7 @@
       snsLink.target = "_blank";
       snsLink.rel = "noopener noreferrer";
       snsLink.className = "mini-link-btn";
-      snsLink.textContent = store.instagramHandle ? ("📸 Insta (" + store.instagramHandle + ")") : "📸 Instagram・SNS検索";
+      snsLink.textContent = store.instagramHandle ? ("📸 Insta (" + store.instagramHandle + ")") : "📸 公式・SNS確認";
 
       const copyBtn1 = document.createElement("button");
       copyBtn1.type = "button";
@@ -545,7 +586,7 @@
     });
   }
 
-  // Render 20km Esaka SVG Radar Map
+  // Render 20km Esaka SVG Radar Map (60 Stores)
   function renderRadarMap() {
     const container = document.getElementById("esaka-radar-container");
     if (!container) return;
@@ -564,7 +605,6 @@
     svg.style.width = "100%";
     svg.style.height = "auto";
 
-    // Concentric rings: 5km, 10km, 15km, 20km
     [20, 15, 10, 5].forEach((km) => {
       const circle = document.createElementNS(ns, "circle");
       circle.setAttribute("cx", cx);
@@ -585,7 +625,6 @@
       svg.appendChild(lbl);
     });
 
-    // Crosshairs
     const hLine = document.createElementNS(ns, "line");
     hLine.setAttribute("x1", 20);
     hLine.setAttribute("y1", cy);
@@ -602,12 +641,11 @@
     vLine.setAttribute("stroke", "hsla(198, 35%, 45%, 0.2)");
     svg.appendChild(vLine);
 
-    // Direction labels
     const dirLabels = [
       { x: cx, y: 14, text: "北（千里中央・箕面・高槻）", anchor: "middle" },
-      { x: cx, y: size - 6, text: "南（福島・北新地・本町・難波）", anchor: "middle" },
-      { x: 10, y: cy - 6, text: "西（伊丹・西宮・芦屋）", anchor: "start" },
-      { x: size - 10, y: cy - 6, text: "東（吹田・茨木）", anchor: "end" }
+      { x: cx, y: size - 6, text: "南（福島・北新地・本町・南船場）", anchor: "middle" },
+      { x: 10, y: cy - 6, text: "西（伊丹・苦楽園・芦屋）", anchor: "start" },
+      { x: size - 10, y: cy - 6, text: "東（吹田・高槻）", anchor: "end" }
     ];
     dirLabels.forEach((d) => {
       const t = document.createElementNS(ns, "text");
@@ -621,7 +659,6 @@
       svg.appendChild(t);
     });
 
-    // Plot Stores
     STORES.forEach((s) => {
       if (typeof s.lat !== "number" || typeof s.lng !== "number") return;
       const dyKm = (s.lat - esakaLat) * 111.0;
@@ -635,17 +672,18 @@
       const dot = document.createElementNS(ns, "circle");
       dot.setAttribute("cx", px);
       dot.setAttribute("cy", py);
-      dot.setAttribute("r", s.rank === "S" ? 6.2 : 5);
+      dot.setAttribute("r", s.rank === "S" ? 5.6 : 4.6);
       dot.setAttribute("fill", s.rank === "S" ? "hsl(11, 72%, 50%)" : "hsl(196, 72%, 38%)");
       dot.setAttribute("stroke", "#ffffff");
-      dot.setAttribute("stroke-width", "1.5");
+      dot.setAttribute("stroke-width", "1.4");
 
       const title = document.createElementNS(ns, "title");
-      title.textContent = s.name + "（" + s.station + "・江坂から" + s.distanceKm.toFixed(1) + "km）";
+      title.textContent = "No." + s.id + " " + s.name + "（" + s.station + "・江坂から" + s.distanceKm.toFixed(1) + "km）";
       g.appendChild(title);
       g.appendChild(dot);
 
       g.addEventListener("click", () => {
+        activateMode("sales");
         activateTab("tab-stores");
         state.fish = "ALL";
         state.segment = "ALL";
@@ -660,11 +698,10 @@
       svg.appendChild(g);
     });
 
-    // Esaka Center Hub Pin
     const hub = document.createElementNS(ns, "circle");
     hub.setAttribute("cx", cx);
     hub.setAttribute("cy", cy);
-    hub.setAttribute("r", 5.5);
+    hub.setAttribute("r", 5.8);
     hub.setAttribute("fill", "hsl(41, 88%, 52%)");
     hub.setAttribute("stroke", "#0d1e2d");
     hub.setAttribute("stroke-width", "2");
@@ -762,6 +799,432 @@
     });
   }
 
+  // =========================================================================
+  // WORKSPACE B: 全国冷凍魚 仕入AI調査 ＆ 江坂配送モデル試算
+  // =========================================================================
+  function renderProcurementStaticMeta() {
+    const execEl = document.getElementById("proc-exec-conclusion");
+    if (execEl && DELIVERY.executiveConclusion) {
+      execEl.textContent = DELIVERY.executiveConclusion;
+    }
+    const depotEl = document.getElementById("delivery-depot-label");
+    if (depotEl && DELIVERY.depotName) {
+      depotEl.textContent = "拠点前提：" + DELIVERY.depotName;
+    }
+    const hlEl = document.getElementById("proc-headline");
+    if (hlEl && PROCUREMENT.headline) {
+      hlEl.textContent = "🐟 " + PROCUREMENT.headline;
+    }
+    const leadEl = document.getElementById("proc-summary-lead");
+    if (leadEl && PROCUREMENT.summaryLead) {
+      leadEl.textContent = PROCUREMENT.summaryLead;
+    }
+
+    // Freezing comparison cards
+    const freezeGrid = document.getElementById("freezing-cards-grid");
+    if (freezeGrid) {
+      freezeGrid.textContent = "";
+      (PROCUREMENT.freezingComparison || []).forEach((fc, idx) => {
+        const card = document.createElement("article");
+        card.className = "freezing-card" + (idx === 2 ? " is-best" : "");
+
+        const topBadge = document.createElement("span");
+        topBadge.className = "rank-badge " + (idx === 0 ? "rank-S" : "rank-A");
+        topBadge.style.alignSelf = "flex-start";
+        topBadge.textContent = "氷結晶通過：" + fc.passTime;
+
+        const title = document.createElement("h3");
+        title.className = "delivery-model-title";
+        title.textContent = fc.method;
+
+        const drip = document.createElement("div");
+        drip.className = "freezing-drip-stat " + (idx === 0 ? "profit-negative" : "profit-positive");
+        drip.textContent = "解凍ドリップ率：" + fc.dripRate;
+
+        const cellP = document.createElement("p");
+        cellP.className = "delivery-meta-note";
+        cellP.textContent = fc.cellState;
+
+        const fitP = document.createElement("div");
+        fitP.style.fontSize = "0.82rem";
+        fitP.style.fontWeight = "700";
+        fitP.style.marginTop = "auto";
+        fitP.textContent = fc.culinaryFit;
+
+        card.appendChild(topBadge);
+        card.appendChild(title);
+        card.appendChild(drip);
+        card.appendChild(cellP);
+        card.appendChild(fitP);
+        freezeGrid.appendChild(card);
+      });
+    }
+
+    // Sources list
+    const srcList = document.getElementById("proc-sources-list");
+    if (srcList) {
+      srcList.textContent = "";
+      (PROCUREMENT.sources || []).forEach((src) => {
+        const li = document.createElement("li");
+        li.textContent = src;
+        srcList.appendChild(li);
+      });
+    }
+
+    // Weekday 4-Cluster Schedule
+    const clTbody = document.getElementById("cluster-schedule-tbody");
+    if (clTbody) {
+      clTbody.textContent = "";
+      let sumStores = 0;
+      (DELIVERY.weekdayClusters || []).forEach((cl) => {
+        sumStores += Number(cl.targetStoresCount || 0);
+        const tr = document.createElement("tr");
+        const tdDay = document.createElement("td");
+        tdDay.style.fontWeight = "700";
+        tdDay.textContent = cl.day;
+
+        const tdName = document.createElement("td");
+        tdName.style.fontWeight = "700";
+        tdName.textContent = cl.clusterName;
+
+        const tdArea = document.createElement("td");
+        tdArea.textContent = cl.areas;
+
+        const tdRoute = document.createElement("td");
+        tdRoute.textContent = cl.routeNote;
+
+        const tdCnt = document.createElement("td");
+        tdCnt.className = "num-col";
+        tdCnt.style.fontWeight = "700";
+        tdCnt.textContent = cl.targetStoresCount + " 店舗";
+
+        tr.appendChild(tdDay);
+        tr.appendChild(tdName);
+        tr.appendChild(tdArea);
+        tr.appendChild(tdRoute);
+        tr.appendChild(tdCnt);
+        clTbody.appendChild(tr);
+      });
+
+      const totTr = document.createElement("tr");
+      totTr.style.backgroundColor = "var(--bg-subtle)";
+      const totLabel = document.createElement("td");
+      totLabel.colSpan = 4;
+      totLabel.style.fontWeight = "700";
+      totLabel.textContent = "合計（月曜日は江坂デポ入荷検品・ピッキング＆富田君の新規サンプル持参訪問日）";
+      const totVal = document.createElement("td");
+      totVal.className = "num-col";
+      totVal.style.fontWeight = "700";
+      totVal.textContent = sumStores + " 店舗";
+      totTr.appendChild(totLabel);
+      totTr.appendChild(totVal);
+      clTbody.appendChild(totTr);
+    }
+  }
+
+  function renderProcurementTable() {
+    const tbody = document.getElementById("proc-items-tbody");
+    if (!tbody) return;
+    tbody.textContent = "";
+
+    const items = (PROCUREMENT.items || []).filter((it) => {
+      if (state.procTier === "ALL") return true;
+      return it.tier === state.procTier;
+    });
+
+    items.forEach((it) => {
+      const tr = document.createElement("tr");
+
+      const faMarginRate = ((it.atlasSellKg - it.wholesaleMid) / it.atlasSellKg) * 100;
+      const dishCost = (it.atlasSellKg * (it.servingG / 1000)) / it.yieldRate;
+      const flRatio = (dishCost / it.menuPriceStd) * 100;
+
+      // Col 1: No
+      const tdNo = document.createElement("td");
+      tdNo.className = "num-col";
+      tdNo.textContent = String(it.no);
+
+      // Col 2: Tier badge
+      const tdTier = document.createElement("td");
+      const badge = document.createElement("span");
+      badge.className = "rank-badge " + (it.tier === "主力5品目" ? "rank-S" : "rank-A");
+      badge.textContent = it.tier;
+      tdTier.appendChild(badge);
+
+      // Col 3: Name & Origin Spec
+      const tdName = document.createElement("td");
+      const strongName = document.createElement("div");
+      strongName.style.fontWeight = "700";
+      strongName.style.fontSize = "0.9rem";
+      strongName.textContent = it.name;
+      const specDiv = document.createElement("div");
+      specDiv.style.fontSize = "0.76rem";
+      specDiv.style.color = "var(--ink-secondary)";
+      specDiv.style.marginTop = "3px";
+      specDiv.textContent = it.originSpec;
+      tdName.appendChild(strongName);
+      tdName.appendChild(specDiv);
+
+      // Col 4: Wholesale Range
+      const tdWh = document.createElement("td");
+      tdWh.className = "num-col";
+      const whMain = document.createElement("div");
+      whMain.style.fontWeight = "700";
+      whMain.textContent = formatYen(it.wholesaleLow) + "〜" + formatYen(it.wholesaleHigh);
+      const whSub = document.createElement("div");
+      whSub.style.fontSize = "0.74rem";
+      whSub.style.color = "var(--ink-muted)";
+      whSub.textContent = "標準仕入 " + formatYen(it.wholesaleMid) + "/kg";
+      tdWh.appendChild(whMain);
+      tdWh.appendChild(whSub);
+
+      // Col 5: FA Wholesale Sell Price & Margin
+      const tdFa = document.createElement("td");
+      tdFa.className = "num-col";
+      const faMain = document.createElement("div");
+      faMain.style.fontWeight = "700";
+      faMain.style.color = "var(--accent-amber)";
+      faMain.textContent = formatYen(it.atlasSellKg) + "/kg";
+      const faSub = document.createElement("div");
+      faSub.style.fontSize = "0.74rem";
+      faSub.style.color = "var(--accent-kelp)";
+      faSub.textContent = "FA粗利率 " + faMarginRate.toFixed(1) + "%";
+      tdFa.appendChild(faMain);
+      tdFa.appendChild(faSub);
+
+      // Col 6: Yield Rate
+      const tdYield = document.createElement("td");
+      const yMain = document.createElement("div");
+      yMain.style.fontFamily = "var(--font-mono)";
+      yMain.style.fontWeight = "700";
+      yMain.textContent = Math.round(it.yieldRate * 100) + "%";
+      const ySub = document.createElement("div");
+      ySub.style.fontSize = "0.74rem";
+      ySub.style.color = "var(--ink-secondary)";
+      ySub.textContent = it.rawFishYieldNote;
+      tdYield.appendChild(yMain);
+      tdYield.appendChild(ySub);
+
+      // Col 7: Per-Dish Cost & Restaurant Menu Price
+      const tdFl = document.createElement("td");
+      tdFl.className = "num-col";
+      const flCost = document.createElement("div");
+      flCost.style.fontWeight = "700";
+      flCost.textContent = formatYen(dishCost) + " /皿 (" + it.servingG + "g)";
+      const flMenu = document.createElement("div");
+      flMenu.style.fontSize = "0.74rem";
+      flMenu.style.color = "var(--ink-secondary)";
+      flMenu.textContent = "売価 " + formatYen(it.menuPriceStd) + " ";
+      const flPill = document.createElement("span");
+      flPill.className = "fl-pill";
+      flPill.textContent = "原価率 " + flRatio.toFixed(1) + "%";
+      flMenu.appendChild(flPill);
+      tdFl.appendChild(flCost);
+      tdFl.appendChild(flMenu);
+
+      // Col 8: Freezing Edge & Upsell Pitch
+      const tdEdge = document.createElement("td");
+      const edgeP = document.createElement("div");
+      edgeP.style.fontSize = "0.79rem";
+      edgeP.textContent = "❄️ " + it.freezingEdge;
+      const pitchP = document.createElement("div");
+      pitchP.style.fontSize = "0.79rem";
+      pitchP.style.fontWeight = "600";
+      pitchP.style.color = "var(--accent-tide)";
+      pitchP.style.marginTop = "4px";
+      pitchP.textContent = "🎯 " + it.upsellPitch;
+      tdEdge.appendChild(edgeP);
+      tdEdge.appendChild(pitchP);
+
+      tr.appendChild(tdNo);
+      tr.appendChild(tdTier);
+      tr.appendChild(tdName);
+      tr.appendChild(tdWh);
+      tr.appendChild(tdFa);
+      tr.appendChild(tdYield);
+      tr.appendChild(tdFl);
+      tr.appendChild(tdEdge);
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderDeliverySimulator() {
+    const grid = document.getElementById("delivery-models-grid");
+    const alertBanner = document.getElementById("sim-alert-banner");
+    if (!grid) return;
+
+    const stores = state.sim.stores;
+    const order = state.sim.order;
+    const drops = state.sim.drops;
+    const gmRate = state.sim.gm / 100;
+
+    // Update control value labels
+    const setTxt = (id, txt) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = txt;
+    };
+    const dropLabels = {
+      1: "月 1 回（まとめ便）",
+      2: "月 2 回（隔週）",
+      3: "月 3 回",
+      4: "月 4 回（毎週）"
+    };
+    setTxt("sim-stores-val", stores + " 店舗");
+    setTxt("sim-order-val", formatYen(order) + " /月");
+    setTxt("sim-drops-val", dropLabels[drops] || ("月 " + drops + " 回"));
+    setTxt("sim-gm-val", state.sim.gm + "%");
+
+    // Alert check for entry ¥10,000 + weekly Cool shipping
+    const perStoreCoolLossCheck = order * gmRate - drops * 1220;
+    if (alertBanner) {
+      if (perStoreCoolLossCheck < 0) {
+        alertBanner.hidden = false;
+        alertBanner.textContent =
+          "⚠️ 赤字注意：平均発注 " + formatYen(order) + " × 月" + drops + "回クール便だと、1店舗あたり食材粗利 " +
+          formatYen(order * gmRate) + " に対し配送費が " + formatYen(drops * 1220) +
+          " かかり、1店ごとに毎月 " + formatSignedYen(perStoreCoolLossCheck) +
+          " の赤字になります！月1万円台の入口プランは必ず『隔週（月2回以下）』に設定してください。";
+      } else {
+        alertBanner.hidden = true;
+      }
+    }
+
+    const baseSales = stores * order;
+    const baseGross = baseSales * gmRate;
+
+    // Model 1: Yamato Cool Only
+    const m1Ship = stores * drops * 1220;
+    const m1Profit = baseGross - m1Ship;
+    const m1PerDrop = 1220;
+
+    // Model 2: Own Freezer Light Van Only
+    const vanFixed = 235000;
+    const vanVar = 140;
+    const m2Ship = vanFixed + stores * drops * vanVar;
+    const m2Profit = baseGross - m2Ship;
+    const m2PerDrop = Math.round(m2Ship / Math.max(1, stores * drops));
+
+    // Model 3: Hybrid Phase Model
+    // Phase 1 (<39 stores): Cool shipping, enforcing max 2 drops/mo when order <= 12,000
+    // Phase 2 (>=39 stores): 85% Own Van (¥140) + 15% Cool (¥1,220) = ¥302/drop + ¥235,000 fixed, plus +¥6,000/mo face-to-face upsell lift (or +¥3,000 if entry)
+    let m3Sales = baseSales;
+    let m3Gross = baseGross;
+    let m3Ship = 0;
+    let m3PhaseLabel = "";
+    if (stores < 39) {
+      const safeDrops = order <= 12000 ? Math.min(drops, 2) : drops;
+      m3Ship = stores * safeDrops * 1220;
+      m3PhaseLabel = "現在 Phase 1 適用中（1〜38店：固定費0円クール便＋近隣のみ富田君訪問、1万円枠は隔週2回上限ルール適用）";
+    } else {
+      const upsellLift = order >= 18000 ? 6000 : 3000;
+      m3Sales = stores * (order + upsellLift);
+      m3Gross = m3Sales * gmRate;
+      const weightedDrop = Math.round(140 * 0.85 + 1220 * 0.15); // 302 yen
+      m3Ship = vanFixed + stores * drops * weightedDrop;
+      m3PhaseLabel = "現在 Phase 2 適用中（39店〜：火〜金自社冷凍バン85%＋遠方クール便15%併用、対面納品による単価+" + formatYen(upsellLift) + "効果反映）";
+    }
+    const m3Profit = m3Gross - m3Ship;
+    const m3PerDrop = Math.round(m3Ship / Math.max(1, stores * drops));
+
+    const calcResults = [
+      {
+        meta: DELIVERY.models[0] || { name: "① ヤマトクール宅急便単独", badge: "初期向き", breakevenStoresNote: "", pros: "" },
+        sales: baseSales,
+        gross: baseGross,
+        ship: m1Ship,
+        perDrop: m1PerDrop,
+        profit: m1Profit,
+        subNote: "固定費 ¥0 ／ 変動費 ¥1,220/回（運賃+保冷箱）"
+      },
+      {
+        meta: DELIVERY.models[1] || { name: "② 自社軽バン冷凍車単独", badge: "拡大期向き", breakevenStoresNote: "", pros: "" },
+        sales: baseSales,
+        gross: baseGross,
+        ship: m2Ship,
+        perDrop: m2PerDrop,
+        profit: m2Profit,
+        subNote: "固定費 ¥235,000/月（車両・燃料・週4パート）＋ 通い箱 ¥140/回"
+      },
+      {
+        meta: DELIVERY.models[2] || { name: "③ ハイブリッド段階移行（推奨）", badge: "推奨ベスト", breakevenStoresNote: "", pros: "" },
+        sales: m3Sales,
+        gross: m3Gross,
+        ship: m3Ship,
+        perDrop: m3PerDrop,
+        profit: m3Profit,
+        subNote: m3PhaseLabel
+      }
+    ];
+
+    const maxProfit = Math.max(...calcResults.map((r) => r.profit));
+
+    grid.textContent = "";
+    calcResults.forEach((res) => {
+      const isWinner = res.profit === maxProfit;
+      const card = document.createElement("article");
+      card.className = "delivery-model-card" + (isWinner ? " is-winner" : "");
+
+      const badges = document.createElement("div");
+      badges.className = "store-badges-top";
+      const b1 = document.createElement("span");
+      b1.className = "rank-badge " + (isWinner ? "rank-S" : "rank-A");
+      b1.textContent = isWinner ? "🏆 この条件で最高利益" : res.meta.badge;
+      badges.appendChild(b1);
+
+      const title = document.createElement("h3");
+      title.className = "delivery-model-title";
+      title.textContent = res.meta.name;
+
+      const plBox = document.createElement("div");
+      plBox.className = "delivery-pl-box";
+
+      const addRow = (lbl, valTxt, extraCls) => {
+        const row = document.createElement("div");
+        row.className = "delivery-pl-row" + (extraCls ? " " + extraCls : "");
+        const s1 = document.createElement("span");
+        s1.textContent = lbl;
+        const s2 = document.createElement("span");
+        s2.style.fontFamily = "var(--font-mono)";
+        s2.textContent = valTxt;
+        row.appendChild(s1);
+        row.appendChild(s2);
+        plBox.appendChild(row);
+      };
+
+      addRow("月間売上高合計", formatYen(res.sales));
+      addRow("食材粗利額 (" + state.sim.gm + "%)", formatYen(res.gross));
+      addRow("月間配送コスト計", "-" + formatYen(res.ship) + " (@" + formatYen(res.perDrop) + "/回)");
+
+      const profitRow = document.createElement("div");
+      profitRow.className = "delivery-pl-row delivery-pl-profit";
+      const pLbl = document.createElement("span");
+      pLbl.textContent = "月間営業利益";
+      const pVal = document.createElement("span");
+      pVal.className = res.profit >= 0 ? "profit-positive" : "profit-negative";
+      const opMargin = res.sales > 0 ? ((res.profit / res.sales) * 100).toFixed(1) : "0.0";
+      pVal.textContent = formatSignedYen(res.profit) + " (" + opMargin + "%)";
+      profitRow.appendChild(pLbl);
+      profitRow.appendChild(pVal);
+      plBox.appendChild(profitRow);
+
+      const noteP = document.createElement("p");
+      noteP.className = "delivery-meta-note";
+      noteP.textContent = "💡 " + res.subNote;
+
+      const breakP = document.createElement("p");
+      breakP.className = "delivery-meta-note";
+      breakP.style.fontWeight = "600";
+      breakP.textContent = "📌 " + (res.meta.breakevenStoresNote || "");
+
+      card.appendChild(badges);
+      card.appendChild(title);
+      card.appendChild(plBox);
+      card.appendChild(noteP);
+      card.appendChild(breakP);
+      grid.appendChild(card);
+    });
+  }
+
   // Export CSV with BOM
   function exportProgressCsv() {
     const headers = [
@@ -771,7 +1234,7 @@
       "江坂からの距離(km)",
       "最寄駅",
       "勝ち筋セグメント",
-      "所在地",
+      "所在地・TEL",
       "業態・単価",
       "最優先フック商材",
       "月1万円カスタム定期便レシピ",
@@ -796,8 +1259,9 @@
     ]);
 
     const escapeCsv = (val) => {
-      const str = String(val == null ? "" : val);
-      return '"' + str.replace(/"/g, '""') + '"';
+      const raw = String(val == null ? "" : val);
+      const safe = /^[=+\-@]/.test(raw) ? "'" + raw : raw;
+      return '"' + safe.replace(/"/g, '""') + '"';
     };
 
     const csvBody = [headers.map(escapeCsv).join(",")]
@@ -808,15 +1272,15 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "ファインアトラス_江坂20km営業進捗メモ.csv";
+    a.download = "ファインアトラス_江坂20km営業進捗メモ_60店舗.csv";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast("💾 営業進捗・メモをCSV出力しました");
+    showToast("💾 全" + STORES.length + "店舗の営業進捗・メモをCSV出力しました");
   }
 
-  // Tabs Activation
+  // Sub-Tabs Activation inside Sales Workspace
   function activateTab(tabId) {
     const pairs = [
       { tab: "tab-stores", panel: "panel-stores" },
@@ -855,6 +1319,11 @@
 
   // Bind UI Events
   function bindEvents() {
+    const modeSalesBtn = document.getElementById("mode-sales");
+    const modeProcBtn = document.getElementById("mode-procurement");
+    if (modeSalesBtn) modeSalesBtn.addEventListener("click", () => activateMode("sales"));
+    if (modeProcBtn) modeProcBtn.addEventListener("click", () => activateMode("procurement"));
+
     ["tab-stores", "tab-strategy", "tab-playbook"].forEach((id) => {
       const btn = document.getElementById(id);
       if (btn) btn.addEventListener("click", () => activateTab(id));
@@ -866,6 +1335,7 @@
         state.segment = seg;
         const sel = document.getElementById("segment-filter");
         if (sel) sel.value = seg;
+        activateMode("sales");
         activateTab("tab-stores");
         renderStores();
         window.scrollTo({ top: 260, behavior: "smooth" });
@@ -937,6 +1407,71 @@
       });
     }
 
+    // Procurement Tier Filter Pills
+    document.querySelectorAll("#proc-tier-filter .tag-pill").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.procTier = btn.getAttribute("data-tier") || "ALL";
+        document.querySelectorAll("#proc-tier-filter .tag-pill").forEach((b) => {
+          b.classList.toggle("is-active", b === btn);
+        });
+        renderProcurementTable();
+      });
+    });
+
+    // Delivery Simulator Inputs & Presets
+    const storesInput = document.getElementById("sim-stores-input");
+    const orderInput = document.getElementById("sim-order-input");
+    const dropsSelect = document.getElementById("sim-drops-select");
+    const gmInput = document.getElementById("sim-gm-input");
+
+    const clearPresetActive = () => {
+      document.querySelectorAll(".sim-preset-btn").forEach((b) => b.classList.remove("is-active"));
+    };
+
+    if (storesInput) {
+      storesInput.addEventListener("input", () => {
+        state.sim.stores = parseInt(storesInput.value, 10) || 1;
+        clearPresetActive();
+        renderDeliverySimulator();
+      });
+    }
+    if (orderInput) {
+      orderInput.addEventListener("input", () => {
+        state.sim.order = parseInt(orderInput.value, 10) || 10000;
+        clearPresetActive();
+        renderDeliverySimulator();
+      });
+    }
+    if (dropsSelect) {
+      dropsSelect.addEventListener("change", () => {
+        state.sim.drops = parseInt(dropsSelect.value, 10) || 2;
+        clearPresetActive();
+        renderDeliverySimulator();
+      });
+    }
+    if (gmInput) {
+      gmInput.addEventListener("input", () => {
+        state.sim.gm = parseInt(gmInput.value, 10) || 40;
+        clearPresetActive();
+        renderDeliverySimulator();
+      });
+    }
+
+    document.querySelectorAll(".sim-preset-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.sim.stores = parseInt(btn.getAttribute("data-stores"), 10) || 28;
+        state.sim.order = parseInt(btn.getAttribute("data-order"), 10) || 28000;
+        state.sim.drops = parseInt(btn.getAttribute("data-drops"), 10) || 4;
+        state.sim.gm = parseInt(btn.getAttribute("data-gm"), 10) || 40;
+        if (storesInput) storesInput.value = String(state.sim.stores);
+        if (orderInput) orderInput.value = String(state.sim.order);
+        if (dropsSelect) dropsSelect.value = String(state.sim.drops);
+        if (gmInput) gmInput.value = String(state.sim.gm);
+        document.querySelectorAll(".sim-preset-btn").forEach((b) => b.classList.toggle("is-active", b === btn));
+        renderDeliverySimulator();
+      });
+    });
+
     const exportBtn = document.getElementById("btn-export-csv");
     if (exportBtn) {
       exportBtn.addEventListener("click", exportProgressCsv);
@@ -951,5 +1486,11 @@
   renderStores();
   renderRadarMap();
   renderPlaybook();
+  renderProcurementStaticMeta();
+  renderProcurementTable();
+  renderDeliverySimulator();
+  if (window.location.hash === "#procurement") {
+    activateMode("procurement");
+  }
   setInterval(updateSummaryMetrics, 30000);
 })();
